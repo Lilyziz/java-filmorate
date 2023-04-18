@@ -12,7 +12,7 @@ public class User {
     private LocalDate birthday;
 
     public void update(User user) {
-        if (!user.getEmail().contains("@")) {
+        if (user.getEmail().contains("@")) {
             this.email = user.getEmail();
         }
         if (!user.getLogin().isEmpty()) {
