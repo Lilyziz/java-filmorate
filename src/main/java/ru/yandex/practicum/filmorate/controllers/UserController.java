@@ -2,35 +2,35 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.controllers.Exceptions.InvalidBirthdayException;
-import ru.yandex.practicum.filmorate.controllers.Exceptions.InvalidEmailException;
-import ru.yandex.practicum.filmorate.controllers.Exceptions.InvalidLoginException;
-import ru.yandex.practicum.filmorate.controllers.Exceptions.UserAlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.InvalidBirthdayException;
+import ru.yandex.practicum.filmorate.exception.InvalidEmailException;
+import ru.yandex.practicum.filmorate.exception.InvalidLoginException;
+import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
 import ru.yandex.practicum.filmorate.model.User;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
 
 @Slf4j
 @RestController
 public class UserController {
 
-    static int id = 0;
-    private final List<User> users = new ArrayList<>();
+    private static long id = 0;
+    private final HashMap<Long, User> users = new HashMap<>();
 
-    int generateId() {
+    private long generateId() {
         return ++id;
     }
 
     @GetMapping("/users")
-    public List<User> getAllUsers() {
-        log.info("Get all users: " + users.size());
-        return users;
+    public Collection<User> getAllUsers() {
+        log.info("Get all users: " + users.values().size());
+        Collection<User> listOfUsers = users.values();
+        return listOfUsers;
     }
 
     @PostMapping("/users")
-    public User createUser(@RequestBody User user) throws InvalidEmailException, UserAlreadyExistException, InvalidLoginException, InvalidBirthdayException {
+    public User createUser(@RequestBody User user) {
 
         log.info("Create user: " + user.toString());
 
@@ -40,33 +40,30 @@ public class UserController {
         if (!user.getEmail().contains("@")) {
             throw new InvalidEmailException("Email должен содержать символ @");
         }
-        for (User item : users) {
+        for (User item : users.values()) {
             if (item.getEmail().equals(user.getEmail())) {
                 throw new UserAlreadyExistException("Пользователь с таким email уже существует");
             }
         }
-
         if (user.getLogin() == null || user.getLogin() == "") {
             throw new InvalidLoginException("Login не указан");
         }
         if (user.getLogin().contains(" ")) {
             throw new InvalidLoginException("Login должен быть без пробелов");
         }
-
         if (user.getName() == null || user.getName() == "") {
             user.setName(user.getLogin());
         }
-
         if (user.getBirthday().isAfter(LocalDate.now())) {
             throw new InvalidBirthdayException("Birthday не может быть в будущем");
         }
         user.setId(generateId());
-        users.add(user);
+        users.put(user.getId(), user);
         return user;
     }
 
     @PutMapping("/users")
-    public User put(@RequestBody User user) throws InvalidEmailException {
+    public User put(@RequestBody User user) {
 
         log.info("Update user: " + user.toString());
 
@@ -76,13 +73,27 @@ public class UserController {
         if (!user.getEmail().contains("@")) {
             throw new InvalidEmailException("Email должен содержать символ @");
         }
-        for (User item : users) {
-            System.out.println(item.getId());
-            if (item.getId() == user.getId()) {
-                item.update(user);
-                return user;
+        for (Long item : users.keySet()) {
+            if (item == user.getId()) {
+                update(users.get(item), user);
+                return users.get(item);
             }
         }
         throw new InvalidEmailException("Email не найден");
+    }
+
+    public void update(User updatingUser, User user) {
+        if (user.getEmail().contains("@")) {
+            updatingUser.setEmail(user.getEmail());
+        }
+        if (!user.getLogin().isEmpty()) {
+            updatingUser.setLogin(user.getLogin());
+        }
+        if (!user.getName().isEmpty()) {
+            updatingUser.setName(user.getName());
+        }
+        if (!user.getBirthday().isAfter(LocalDate.now())) {
+            updatingUser.setBirthday(user.getBirthday());
+        }
     }
 }

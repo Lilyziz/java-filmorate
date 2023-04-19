@@ -2,31 +2,31 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.controllers.Exceptions.*;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.Film;
-
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
 
 @Slf4j
 @RestController
 public class FilmController {
-    int id = 0;
-    private final List<Film> films = new ArrayList<>();
+    private static long id = 0;
+    private final HashMap<Long, Film> films = new HashMap<>();
 
-    int generateId() {
+    private long generateId() {
         return ++id;
     }
 
     @GetMapping("/films")
-    public List<Film> getAllFilms() {
-        log.info("Get all films: " + films.size());
-        return films;
+    public Collection<Film> getAllFilms() {
+        log.info("Get all films: " + films.values().size());
+        Collection<Film> listOfFilms = films.values();
+        return listOfFilms;
     }
 
     @PostMapping("/films")
-    public Film createFilm(@RequestBody Film film) throws InvalidFilmNameException, InvalidFilmDescriptionException, InvalidFilmDurationException, InvalidFilmReleaseDateException {
+    public Film createFilm(@RequestBody Film film) {
 
         log.info("Create film: " + film.toString());
 
@@ -44,12 +44,12 @@ public class FilmController {
             throw new InvalidFilmReleaseDateException("ReleaseDate старая");
         }
         film.setId(generateId());
-        films.add(film);
+        films.put(film.getId(), film);
         return film;
     }
 
     @PutMapping("/films")
-    public Film put(@RequestBody Film film) throws InvalidFilmException {
+    public Film put(@RequestBody Film film) {
 
         log.info("Update film: " + film.toString());
 
@@ -57,12 +57,27 @@ public class FilmController {
             throw new InvalidFilmException("Name не указан");
         }
 
-        for (Film item : films) {
-            if (item.getId() == film.getId()) {
-                item.update(film);
-                return item;
+        for (Long item : films.keySet()) {
+            if (item == film.getId()) {
+                update(films.get(item), film);
+                return films.get(item);
             }
         }
         throw new InvalidFilmException("Film не найден");
+    }
+
+    public void update(Film updatingFilm, Film film) {
+        if (!film.getName().isEmpty()) {
+            updatingFilm.setName(film.getName());
+        }
+        if (!film.getDescription().isEmpty()) {
+            updatingFilm.setDescription(film.getDescription());
+        }
+        if (film.getDuration() > 0) {
+            updatingFilm.setDuration(film.getDuration());
+        }
+        if (!film.getReleaseDate().isBefore(LocalDate.of(1985, 12, 28))) {
+            updatingFilm.setReleaseDate(film.getReleaseDate());
+        }
     }
 }
