@@ -15,6 +15,6 @@ public interface IUserStorage {
     void delete(Long id);
 
     User getUserById(Long id);
-    
+
     boolean contains(long id);
 }
