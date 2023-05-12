@@ -62,6 +62,4 @@ public class FilmController {
         log.info("Delete like from film with id " + id + "from user with id " + userId);
         return filmService.deleteLike(id, userId);
     }
-
-
 }
