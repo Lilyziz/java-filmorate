@@ -1,99 +1,74 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.InvalidBirthdayException;
-import ru.yandex.practicum.filmorate.exception.InvalidEmailException;
-import ru.yandex.practicum.filmorate.exception.InvalidLoginException;
-import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
 import ru.yandex.practicum.filmorate.model.User;
-import java.time.LocalDate;
+import ru.yandex.practicum.filmorate.service.UserService;
+
 import java.util.Collection;
-import java.util.HashMap;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
+    private final UserService userService;
 
-    private static long id = 0;
-    private final HashMap<Long, User> users = new HashMap<>();
-
-    private long generateId() {
-        return ++id;
-    }
-
-    @GetMapping("/users")
+    @GetMapping
     public Collection<User> getAllUsers() {
-        log.info("Get all users: " + users.values().size());
-        Collection<User> listOfUsers = users.values();
-        return listOfUsers;
+        log.info("List of all users: ");
+        return userService.getAllUsers();
     }
 
-    @PostMapping("/users")
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable long id) {
+        log.info("Get user with id " + id);
+        return userService.getUserById(id);
+    }
+
+    @GetMapping("/{id}/friends")
+    public Collection<User> getFriendsList(@PathVariable long id) {
+        log.info("List of friends: ");
+        return userService.getFriendList(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Collection<User> getCommonFriend(@PathVariable long id, @PathVariable long otherId) {
+        log.info("List of common friends: ");
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    @PostMapping
     public User createUser(@RequestBody User user) {
-
         log.info("Create user: " + user.toString());
-
-        if (user.getEmail() == null || user.getEmail() == "") {
-            throw new InvalidEmailException("Email не указан");
-        }
-        if (!user.getEmail().contains("@")) {
-            throw new InvalidEmailException("Email должен содержать символ @");
-        }
-        for (User item : users.values()) {
-            if (item.getEmail().equals(user.getEmail())) {
-                throw new UserAlreadyExistException("Пользователь с таким email уже существует");
-            }
-        }
-        if (user.getLogin() == null || user.getLogin() == "") {
-            throw new InvalidLoginException("Login не указан");
-        }
-        if (user.getLogin().contains(" ")) {
-            throw new InvalidLoginException("Login должен быть без пробелов");
-        }
-        if (user.getName() == null || user.getName() == "") {
-            user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new InvalidBirthdayException("Birthday не может быть в будущем");
-        }
-        user.setId(generateId());
-        users.put(user.getId(), user);
-        return user;
+        return userService.addUser(user);
     }
 
-    @PutMapping("/users")
+    @PutMapping
     public User put(@RequestBody User user) {
-
         log.info("Update user: " + user.toString());
-
-        if (user.getEmail() == null || user.getEmail() == "") {
-            throw new InvalidEmailException("Email не указан");
-        }
-        if (!user.getEmail().contains("@")) {
-            throw new InvalidEmailException("Email должен содержать символ @");
-        }
-        for (Long item : users.keySet()) {
-            if (item == user.getId()) {
-                update(users.get(item), user);
-                return users.get(item);
-            }
-        }
-        throw new InvalidEmailException("Email не найден");
+        return userService.updateUser(user);
     }
 
-    public void update(User updatingUser, User user) {
-        if (user.getEmail().contains("@")) {
-            updatingUser.setEmail(user.getEmail());
-        }
-        if (!user.getLogin().isEmpty()) {
-            updatingUser.setLogin(user.getLogin());
-        }
-        if (!user.getName().isEmpty()) {
-            updatingUser.setName(user.getName());
-        }
-        if (!user.getBirthday().isAfter(LocalDate.now())) {
-            updatingUser.setBirthday(user.getBirthday());
-        }
+    @PutMapping("/{id}/friends/{friendId}")
+    public String addFriend(@PathVariable long id, @PathVariable long friendId) {
+        userService.addFriend(id, friendId);
+        return ("Users " + userService.getUserById(id).getLogin() + " and "
+                + userService.getUserById(friendId).getLogin() + " are friends now");
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public String deleteFriend(@PathVariable long id, @PathVariable long friendId) {
+        userService.deleteFromFriends(id, friendId);
+        return ("Users " + userService.getUserById(id).getLogin() + " and "
+                + userService.getUserById(friendId).getLogin() + " are not friends anymore");
+
+    }
+
+    @DeleteMapping("/{userId}")
+    public void deleteUser(@PathVariable long userId) {
+        log.info("Delete user with id " + userId);
+        userService.delete(userId);
     }
 }

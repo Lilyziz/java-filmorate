@@ -1,7 +1,11 @@
 package ru.yandex.practicum.filmorate.exception;
 
 public class IdException extends RuntimeException {
-    public IdException(String message) {
-        super(message);
+    private final String parameter;
+    public IdException(String parameter) {
+        this.parameter = parameter;
+    }
+    public String getParameter() {
+        return parameter;
     }
 }
