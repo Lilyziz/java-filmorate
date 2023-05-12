@@ -52,6 +52,9 @@ public class UserService {
             throw new IdException("Id must be positive number");
         }
 
+        if (!userStorage.contains(id) || !userStorage.contains(friendId)) {
+            throw new IdException("There is no user with this id");
+        }
         User user1 = getUserById(id);
         User user2 = getUserById(friendId);
 
