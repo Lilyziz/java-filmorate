@@ -13,19 +13,19 @@ public class ErrorHandler extends RuntimeException {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND) //404
-    public ErrorResponse IdExceptionHandler(IdException e) {
+    public ErrorResponse idExceptionHandler(IdException e) {
         return new ErrorResponse(e.getParameter());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST) //400
-    public ErrorResponse ValidationExceptionHandler(ValidationException e) {
+    public ErrorResponse validationExceptionHandler(ValidationException e) {
         return new ErrorResponse(e.getParameter());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR) //500
-    public ErrorResponse InternalServerErrorHandler(RuntimeException e) {
+    public ErrorResponse internalServerErrorHandler(RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 }
