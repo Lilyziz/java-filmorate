@@ -55,10 +55,10 @@ public class UserService {
         User user1 = getUserById(id);
         User user2 = getUserById(friendId);
 
-        if (!user1.getFriends().add(friendId) ) {
+        if (!user1.getFriends().add(friendId)) {
             throw new IdException("Users are already friends");
         }
-        if (!user2.getFriends().add(id) ) {
+        if (!user2.getFriends().add(id)) {
             throw new IdException("Users are already friends");
         }
     }
