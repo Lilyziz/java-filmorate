@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.IdException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.IUserStorage;
+import ru.yandex.practicum.filmorate.validator.UserValidator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,22 +14,23 @@ import java.util.Set;
 @Service
 public class UserService {
     private final IUserStorage userStorage;
-    private static long id = 0;
+    private final UserValidator userValidator;
 
     public UserService(IUserStorage userStorage) {
+        userValidator = new UserValidator();
         this.userStorage = userStorage;
     }
 
-    private long generateId() {
-        return ++id;
-    }
-
     public User addUser(User user) {
-        user.setId(generateId());
+        userValidator.isValid(user);
         return userStorage.createUser(user);
     }
 
     public User updateUser(User user) {
+        userValidator.isValid(user);
+        if (!userStorage.contains(user.getId())) {
+            throw new IdException("There is no user with this id");
+        }
         return userStorage.updateUser(user);
     }
 

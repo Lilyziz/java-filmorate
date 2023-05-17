@@ -1,10 +1,9 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.IdException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,30 +25,6 @@ public class InMemoryUserStorage implements IUserStorage {
 
     @Override
     public User createUser(User user) {
-
-        if (user.getEmail() == null || user.getEmail() == "") {
-            throw new ValidationException("No email");
-        }
-        if (!user.getEmail().contains("@")) {
-            throw new ValidationException("Email must be with @");
-        }
-        for (User item : users.values()) {
-            if (item.getEmail().equals(user.getEmail())) {
-                throw new ValidationException("User with this email already exist");
-            }
-        }
-        if (user.getLogin() == null || user.getLogin() == "") {
-            throw new ValidationException("No login");
-        }
-        if (user.getLogin().contains(" ")) {
-            throw new ValidationException("Login must be without spaces");
-        }
-        if (user.getName() == null || user.getName() == "") {
-            user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ValidationException("Birthday can't be in the future");
-        }
         user.setId(generateId());
         users.put(user.getId(), user);
         return user;
@@ -57,35 +32,18 @@ public class InMemoryUserStorage implements IUserStorage {
 
     @Override
     public User updateUser(User user) {
-
-        if (user.getEmail() == null || user.getEmail() == "") {
-            throw new ValidationException("No email");
+        if (users.containsKey(user.getId())) {
+            update(users.get(user.getId()), user);
+            return users.get(user.getId());
         }
-        if (!user.getEmail().contains("@")) {
-            throw new ValidationException("Email must be with @");
-        }
-        for (Long item : users.keySet()) {
-            if (item == user.getId()) {
-                update(users.get(item), user);
-                return users.get(item);
-            }
-        }
-        throw new RuntimeException("No email");
+        throw new IdException("There is no user with this id");
     }
 
     private void update(User updatingUser, User user) {
-        if (user.getEmail().contains("@")) {
-            updatingUser.setEmail(user.getEmail());
-        }
-        if (!user.getLogin().isEmpty()) {
-            updatingUser.setLogin(user.getLogin());
-        }
-        if (!user.getName().isEmpty()) {
-            updatingUser.setName(user.getName());
-        }
-        if (!user.getBirthday().isAfter(LocalDate.now())) {
-            updatingUser.setBirthday(user.getBirthday());
-        }
+        updatingUser.setEmail(user.getEmail());
+        updatingUser.setLogin(user.getLogin());
+        updatingUser.setName(user.getName());
+        updatingUser.setBirthday(user.getBirthday());
         updatingUser.setFriends(user.getFriends());
     }
 

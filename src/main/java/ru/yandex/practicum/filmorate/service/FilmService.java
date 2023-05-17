@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.IdException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.IFilmStorage;
+import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
 import java.util.Collection;
 import java.util.Set;
@@ -11,24 +12,23 @@ import java.util.Set;
 @Service
 public class FilmService {
     private final IFilmStorage filmStorage;
-    private final UserService userService;
-    private static long id = 0;
+    private final FilmValidator filmValidator;
 
     public FilmService(IFilmStorage filmStorage, UserService userService) {
+        filmValidator = new FilmValidator();
         this.filmStorage = filmStorage;
-        this.userService = userService;
-    }
-
-    private long generateId() {
-        return ++id;
     }
 
     public Film addFilm(Film film) {
-        film.setId(generateId());
+        filmValidator.isValid(film);
         return filmStorage.createFilm(film);
     }
 
     public Film updateFilm(Film film) {
+        filmValidator.isValid(film);
+        if (!filmStorage.contains(film.getId())) {
+            throw new IdException("There is no film with this id");
+        }
         return filmStorage.updateFilm(film);
     }
 
@@ -47,7 +47,7 @@ public class FilmService {
         filmStorage.delete(id);
     }
 
-    public String addLike(long id, long userId) {
+    public void addLike(long id, long userId) {
         if (!filmStorage.contains(id)) {
             throw new IdException("There is no film with this id");
         }
@@ -55,11 +55,9 @@ public class FilmService {
         if (!likes.add(userId)) {
             throw new IdException("User already liked this film");
         }
-        return ("User " + userService.getUserById(userId).getLogin() + " поставил лайк фильму "
-                + filmStorage.getFilmById(id).getName() + ".");
     }
 
-    public String deleteLike(long id, long userId) {
+    public void deleteLike(long id, long userId) {
         if (!filmStorage.contains(id)) {
             throw new IdException("There is no film with this id");
         }
@@ -68,8 +66,6 @@ public class FilmService {
             throw new IdException("User didn't like this film");
         }
         likes.remove(userId);
-        return ("User " + userService.getUserById(userId).getLogin() + " delete like from film "
-                + filmStorage.getFilmById(id).getName() + ".");
     }
 
     public Collection<Film> topFilmsWithCount(long count) {

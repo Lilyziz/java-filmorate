@@ -28,20 +28,6 @@ public class InMemoryFilmStorage implements IFilmStorage {
 
     @Override
     public Film createFilm(Film film) {
-
-        if (film.getName() == null || film.getName() == "") {
-            throw new ValidationException("No name");
-        }
-
-        if (film.getDescription().length() > 200) {
-            throw new ValidationException("Description must be >200");
-        }
-        if (film.getDuration() <= 0) {
-            throw new ValidationException("Duration must be >0");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("ReleaseDate too old");
-        }
         film.setId(generateId());
         films.put(film.getId(), film);
         return film;
@@ -49,33 +35,18 @@ public class InMemoryFilmStorage implements IFilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-
-        if (film.getName() == null || film.getName() == "") {
-            throw new ValidationException("No name");
-        }
-
-        for (Long item : films.keySet()) {
-            if (item == film.getId()) {
-                update(films.get(item), film);
-                return films.get(item);
-            }
+        if (films.containsKey(film.getId())) {
+            update(films.get(film.getId()), film);
+            return films.get(film.getId());
         }
         throw new IdException("Film not found");
     }
 
     public void update(Film updatingFilm, Film film) {
-        if (!film.getName().isEmpty()) {
-            updatingFilm.setName(film.getName());
-        }
-        if (!film.getDescription().isEmpty()) {
-            updatingFilm.setDescription(film.getDescription());
-        }
-        if (film.getDuration() > 0) {
-            updatingFilm.setDuration(film.getDuration());
-        }
-        if (!film.getReleaseDate().isBefore(LocalDate.of(1985, 12, 28))) {
-            updatingFilm.setReleaseDate(film.getReleaseDate());
-        }
+        updatingFilm.setName(film.getName());
+        updatingFilm.setDescription(film.getDescription());
+        updatingFilm.setDuration(film.getDuration());
+        updatingFilm.setReleaseDate(film.getReleaseDate());
     }
 
     @Override

@@ -11,7 +11,6 @@ public interface IUserStorage {
 
     User updateUser(User user);
 
-    //void update(User updatingUser, User user);
     void delete(Long id);
 
     User getUserById(Long id);

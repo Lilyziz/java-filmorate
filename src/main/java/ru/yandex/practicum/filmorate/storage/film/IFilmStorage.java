@@ -11,7 +11,6 @@ public interface IFilmStorage {
 
     Film updateFilm(Film film);
 
-    //void update(Film updatingFilm, Film film);
     Film getFilmById(long id);
 
     boolean contains(long id);
