@@ -28,8 +28,8 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getTopFilmsWithCount
-            (@RequestParam(value = "count",required = false, defaultValue = "10") long count) {
+    public Collection<Film> getTopFilmsWithCount(@RequestParam
+           (value = "count",required = false, defaultValue = "10") long count) {
         log.info("Top films:");
         return filmService.topFilmsWithCount(count);
     }
