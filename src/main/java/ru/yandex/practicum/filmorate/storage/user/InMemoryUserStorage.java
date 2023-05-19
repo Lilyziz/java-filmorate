@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.IdException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class InMemoryUserStorage implements IUserStorage {
@@ -18,9 +18,8 @@ public class InMemoryUserStorage implements IUserStorage {
     }
 
     @Override
-    public Collection<User> getAllUsers() {
-        Collection<User> listOfUsers = users.values();
-        return listOfUsers;
+    public List<User> getAllUsers() {
+        return users.values().stream().collect(Collectors.toList());
     }
 
     @Override
@@ -32,11 +31,9 @@ public class InMemoryUserStorage implements IUserStorage {
 
     @Override
     public User updateUser(User user) {
-        if (users.containsKey(user.getId())) {
-            update(users.get(user.getId()), user);
-            return users.get(user.getId());
-        }
-        throw new IdException("There is no user with this id");
+        users.containsKey(user.getId());
+        update(users.get(user.getId()), user);
+        return users.get(user.getId());
     }
 
     private void update(User updatingUser, User user) {

@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.exception;
 
-public class IdException extends RuntimeException {
+public class BadRequestException extends RuntimeException {
     private final String parameter;
 
-    public IdException(String parameter) {
+    public BadRequestException(String parameter) {
         this.parameter = parameter;
     }
 

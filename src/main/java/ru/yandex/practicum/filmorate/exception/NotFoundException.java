@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.exception;
 
-public class InternalServerError extends RuntimeException {
+public class NotFoundException extends RuntimeException {
     private final String parameter;
 
-    public InternalServerError(String parameter) {
+    public NotFoundException(String parameter) {
         this.parameter = parameter;
     }
 

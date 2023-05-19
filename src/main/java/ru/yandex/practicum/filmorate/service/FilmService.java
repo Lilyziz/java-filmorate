@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.IdException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.IFilmStorage;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
-import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -14,7 +14,7 @@ public class FilmService {
     private final IFilmStorage filmStorage;
     private final FilmValidator filmValidator;
 
-    public FilmService(IFilmStorage filmStorage, UserService userService) {
+    public FilmService(IFilmStorage filmStorage) {
         filmValidator = new FilmValidator();
         this.filmStorage = filmStorage;
     }
@@ -27,18 +27,18 @@ public class FilmService {
     public Film updateFilm(Film film) {
         filmValidator.isValid(film);
         if (!filmStorage.contains(film.getId())) {
-            throw new IdException("There is no film with this id");
+            throw new NotFoundException("There is no film with this id");
         }
         return filmStorage.updateFilm(film);
     }
 
-    public Collection<Film> getAllFilms() {
+    public List<Film> getAllFilms() {
         return filmStorage.getAllFilms();
     }
 
     public Film getFilmById(long id) {
         if (!filmStorage.contains(id)) {
-            throw new IdException("There is no film with this id");
+            throw new NotFoundException("There is no film with this id");
         }
         return filmStorage.getFilmById(id);
     }
@@ -49,26 +49,26 @@ public class FilmService {
 
     public void addLike(long id, long userId) {
         if (!filmStorage.contains(id)) {
-            throw new IdException("There is no film with this id");
+            throw new NotFoundException("There is no film with this id");
         }
         Set<Long> likes = filmStorage.getFilmById(id).getLikes();
         if (!likes.add(userId)) {
-            throw new IdException("User already liked this film");
+            throw new NotFoundException("User already liked this film");
         }
     }
 
     public void deleteLike(long id, long userId) {
         if (!filmStorage.contains(id)) {
-            throw new IdException("There is no film with this id");
+            throw new NotFoundException("There is no film with this id");
         }
         Set<Long> likes = filmStorage.getFilmById(id).getLikes();
         if (!likes.contains(userId)) {
-            throw new IdException("User didn't like this film");
+            throw new NotFoundException("User didn't like this film");
         }
         likes.remove(userId);
     }
 
-    public Collection<Film> topFilmsWithCount(long count) {
+    public List<Film> topFilmsWithCount(long count) {
         return filmStorage.topFilmsWithCount(count);
     }
 }

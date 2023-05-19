@@ -2,10 +2,10 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface IFilmStorage {
-    Collection<Film> getAllFilms();
+    List<Film> getAllFilms();
 
     Film createFilm(Film film);
 
@@ -17,5 +17,5 @@ public interface IFilmStorage {
 
     void delete(long id);
 
-    Collection<Film> topFilmsWithCount(long count);
+    List<Film> topFilmsWithCount(long count);
 }

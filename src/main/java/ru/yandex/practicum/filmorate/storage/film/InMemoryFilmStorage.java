@@ -1,12 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.IdException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -20,9 +19,8 @@ public class InMemoryFilmStorage implements IFilmStorage {
     }
 
     @Override
-    public Collection<Film> getAllFilms() {
-        Collection<Film> listOfFilms = films.values();
-        return listOfFilms;
+    public List<Film> getAllFilms() {
+        return films.values().stream().collect(Collectors.toList());
     }
 
     @Override
@@ -34,11 +32,9 @@ public class InMemoryFilmStorage implements IFilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        if (films.containsKey(film.getId())) {
-            update(films.get(film.getId()), film);
-            return films.get(film.getId());
-        }
-        throw new IdException("Film not found");
+        films.containsKey(film.getId());
+        update(films.get(film.getId()), film);
+        return films.get(film.getId());
     }
 
     public void update(Film updatingFilm, Film film) {
@@ -64,11 +60,10 @@ public class InMemoryFilmStorage implements IFilmStorage {
     }
 
     @Override
-    public Collection<Film> topFilmsWithCount(long count) {
-        Collection<Film> allFilms = getAllFilms().stream()
+    public List<Film> topFilmsWithCount(long count) {
+        return getAllFilms().stream()
                 .sorted(Comparator.comparing(film -> -film.getLikes().size()))
                 .limit(count)
                 .collect(Collectors.toList());
-        return allFilms;
     }
 }

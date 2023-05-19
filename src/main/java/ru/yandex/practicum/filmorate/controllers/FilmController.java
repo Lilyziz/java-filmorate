@@ -23,43 +23,44 @@ public class FilmController {
 
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable long id) {
-        log.info("Get film with id " + id);
+        log.info("Get film with id {}", id);
         return filmService.getFilmById(id);
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getTopFilmsWithCount(@RequestParam(value = "count",required = false, defaultValue = "10") long count) {
+    public Collection<Film> getTopFilmsWithCount
+            (@RequestParam(value = "count",required = false, defaultValue = "10") long count) {
         log.info("Top films:");
         return filmService.topFilmsWithCount(count);
     }
 
     @PostMapping
     public Film createFilm(@RequestBody Film film) {
-        log.info("Create film: " + film.toString());
+        log.info("Create film: {}", film.toString());
         return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
-        log.info("Update film: " + film.toString());
+        log.info("Update film: {}", film.toString());
         return filmService.updateFilm(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
     public void userGiveLikeToFilm(@PathVariable long id, @PathVariable long userId) {
-        log.info("Add like to film with id " + id + "from user with id " + userId);
+        log.info("Add like to film with id {} from user with id {}", id, userId);
         filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{filmId}")
     public void deleteFilm(@PathVariable long filmId) {
-        log.info("Delete film with id  " + filmId);
+        log.info("Delete film with id {}", filmId);
         filmService.delete(filmId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void userDeleteLikeToFilm(@PathVariable long id, @PathVariable long userId) {
-        log.info("Delete like from film with id " + id + "from user with id " + userId);
+        log.info("Delete like to film with id {} from user with id {}", id, userId);
         filmService.deleteLike(id, userId);
     }
 }
