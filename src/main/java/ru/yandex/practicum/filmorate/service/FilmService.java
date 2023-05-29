@@ -1,23 +1,23 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.IFilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.LikeStorageDb;
+import ru.yandex.practicum.filmorate.storage.user.UserStorageDb;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
 import java.util.List;
-import java.util.Set;
 
 @Service
+@RequiredArgsConstructor
 public class FilmService {
     private final IFilmStorage filmStorage;
-    private final FilmValidator filmValidator;
-
-    public FilmService(IFilmStorage filmStorage) {
-        filmValidator = new FilmValidator();
-        this.filmStorage = filmStorage;
-    }
+    private final LikeStorageDb likeStorage;
+    private final UserStorageDb userStorage;
+    private final FilmValidator filmValidator = new FilmValidator();
 
     public Film addFilm(Film film) {
         filmValidator.isValid(film);
@@ -51,24 +51,23 @@ public class FilmService {
         if (!filmStorage.contains(id)) {
             throw new NotFoundException("There is no film with this id");
         }
-        Set<Long> likes = filmStorage.getFilmById(id).getLikes();
-        if (!likes.add(userId)) {
-            throw new NotFoundException("User already liked this film");
+        if (!userStorage.contains(id)) {
+            throw new NotFoundException("There is no user with this id");
         }
+        likeStorage.addLike(id, userId);
     }
 
-    public void deleteLike(long id, long userId) {
-        if (!filmStorage.contains(id)) {
+    public void deleteLike(long filmId, long userId) {
+        if (!filmStorage.contains(filmId)) {
             throw new NotFoundException("There is no film with this id");
         }
-        Set<Long> likes = filmStorage.getFilmById(id).getLikes();
-        if (!likes.contains(userId)) {
-            throw new NotFoundException("User didn't like this film");
+        if (!userStorage.contains(userId)) {
+            throw new NotFoundException("There is no user with this id");
         }
-        likes.remove(userId);
+        likeStorage.deleteLike(filmId, userId);
     }
 
     public List<Film> topFilmsWithCount(long count) {
-        return filmStorage.topFilmsWithCount(count);
+        return filmStorage.getTopFilmsWithCount(count);
     }
 }

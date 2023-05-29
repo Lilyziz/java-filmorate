@@ -16,4 +16,12 @@ public interface IUserStorage {
     User getUserById(Long id);
 
     boolean contains(long id);
+
+    void addFriend(long user1, long friend2);
+
+    List<User> getFriendList(Long id);
+
+    void deleteFromFriends(long userId, long friendId);
+
+    List<User> getCommonFriends(long userId, long friendId);
 }

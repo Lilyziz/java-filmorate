@@ -17,5 +17,5 @@ public interface IFilmStorage {
 
     void delete(long id);
 
-    List<Film> topFilmsWithCount(long count);
+    List<Film> getTopFilmsWithCount(long count);
 }

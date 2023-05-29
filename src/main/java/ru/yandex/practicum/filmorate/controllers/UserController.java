@@ -53,7 +53,7 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable long id, @PathVariable long friendId) {
-        userService.addFriend(id, friendId);
+        userService.addFriends(id, friendId);
         log.info("Users {} and {} are friends now",
                 userService.getUserById(id).getLogin(),
                 userService.getUserById(friendId).getLogin());

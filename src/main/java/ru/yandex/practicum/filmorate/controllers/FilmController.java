@@ -47,7 +47,7 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void userGiveLikeToFilm(@PathVariable long id, @PathVariable long userId) {
+    public void giveLike(@PathVariable long id, @PathVariable long userId) {
         log.info("Add like to film with id {} from user with id {}", id, userId);
         filmService.addLike(id, userId);
     }
@@ -59,7 +59,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public void userDeleteLikeToFilm(@PathVariable long id, @PathVariable long userId) {
+    public void deleteLike(@PathVariable long id, @PathVariable long userId) {
         log.info("Delete like to film with id {} from user with id {}", id, userId);
         filmService.deleteLike(id, userId);
     }
