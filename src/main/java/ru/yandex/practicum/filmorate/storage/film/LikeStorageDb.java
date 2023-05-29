@@ -25,7 +25,7 @@ public class LikeStorageDb {
 
     private Integer countLikes(long filmId) {
         String sql = "SELECT COUNT(*) FROM likesList WHERE film_id=";
-        return jdbcTemplate.queryForObject(sql+filmId, Integer.class);
+        return jdbcTemplate.queryForObject(sql + filmId, Integer.class);
     }
 
     public void updateRating(long filmId) {
