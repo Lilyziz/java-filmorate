@@ -13,7 +13,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Slf4j
 @Component("userStorageDb")
@@ -125,14 +127,9 @@ public class UserStorageDb implements IUserStorage {
 
     @Override
     public List<User> getCommonFriends(long userId, long friendId) {
-        String sql = "SELECT u.* FROM users u INNER JOIN friendsList f1 ON u.user_id=f1.friend_id" +
-                "INNER JOIN friendsList f2 ON u.user_id = f2.friend_id WHERE f1.user_id = ? AND f2.user_id = ?";
-        SqlRowSet usersRows = jdbcTemplate.queryForRowSet(sql, userId, friendId);
-        List<User> commonFriends = new ArrayList<>();
-        while (usersRows.next()) {
-            User user = fillUser(usersRows);
-            commonFriends.add(user);
-        }
-        return commonFriends;
+        Set<User> friends1 = new HashSet<>(getFriendList(userId));
+        Set<User> friends2 = new HashSet<>(getFriendList(friendId));
+        friends1.retainAll(friends2);
+        return new ArrayList<>(friends1);
     }
 }
