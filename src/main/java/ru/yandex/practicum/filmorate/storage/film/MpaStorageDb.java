@@ -10,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Component
