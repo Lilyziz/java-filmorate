@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -21,12 +22,12 @@ public class MpaController {
     @GetMapping
     public List<Mpa> getAllMpas() {
         log.info("Get list of all mpas: ");
-        return mpaService.getAllMpas();
+        return mpaService.getAll();
     }
 
     @GetMapping("/{id}")
     public Mpa getMpaById(@PathVariable long id) {
         log.info("Get mpa with id {}", id);
-        return mpaService.getMpaById(id);
+        return mpaService.getById(id);
     }
 }

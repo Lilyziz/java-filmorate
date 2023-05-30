@@ -5,17 +5,17 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
 
 public interface IFilmStorage {
-    List<Film> getAllFilms();
+    List<Film> findAll();
 
-    Film createFilm(Film film);
+    Film create(Film film);
 
-    Film updateFilm(Film film);
+    Film update(Film film);
 
-    Film getFilmById(long id);
+    Film findById(long id);
 
     boolean contains(long id);
 
     void delete(long id);
 
-    List<Film> getTopFilmsWithCount(long count);
+    List<Film> findTopFilmsWithCount(long count);
 }

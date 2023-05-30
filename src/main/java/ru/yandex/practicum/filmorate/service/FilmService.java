@@ -19,28 +19,28 @@ public class FilmService {
     private final UserStorageDb userStorage;
     private final FilmValidator filmValidator = new FilmValidator();
 
-    public Film addFilm(Film film) {
+    public Film create(Film film) {
         filmValidator.isValid(film);
-        return filmStorage.createFilm(film);
+        return filmStorage.create(film);
     }
 
-    public Film updateFilm(Film film) {
+    public Film update(Film film) {
         filmValidator.isValid(film);
         if (!filmStorage.contains(film.getId())) {
             throw new NotFoundException("There is no film with this id");
         }
-        return filmStorage.updateFilm(film);
+        return filmStorage.update(film);
     }
 
-    public List<Film> getAllFilms() {
-        return filmStorage.getAllFilms();
+    public List<Film> getAll() {
+        return filmStorage.findAll();
     }
 
-    public Film getFilmById(long id) {
+    public Film getById(long id) {
         if (!filmStorage.contains(id)) {
             throw new NotFoundException("There is no film with this id");
         }
-        return filmStorage.getFilmById(id);
+        return filmStorage.findById(id);
     }
 
     public void delete(Long id) {
@@ -67,7 +67,7 @@ public class FilmService {
         likeStorage.deleteLike(filmId, userId);
     }
 
-    public List<Film> topFilmsWithCount(long count) {
-        return filmStorage.getTopFilmsWithCount(count);
+    public List<Film> getTopFilmsWithCount(long count) {
+        return filmStorage.findTopFilmsWithCount(count);
     }
 }

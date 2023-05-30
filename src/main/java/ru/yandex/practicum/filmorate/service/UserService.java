@@ -15,35 +15,36 @@ public class UserService {
     private final IUserStorage userStorage;
     private final UserValidator userValidator = new UserValidator();
 
-    public User addUser(User user) {
+    public User create(User user) {
         userValidator.isValid(user);
-        return userStorage.createUser(user);
+        return userStorage.create(user);
     }
 
-    public User updateUser(User user) {
+    public User update(User user) {
         userValidator.isValid(user);
         if (!userStorage.contains(user.getId())) {
             throw new NotFoundException("There is no user with this id");
         }
-        return userStorage.updateUser(user);
+        userStorage.update(user);
+        return user;
     }
 
-    public List<User> getAllUsers() {
-        return userStorage.getAllUsers();
+    public List<User> getAll() {
+        return userStorage.findAll();
     }
 
     public void delete(long id) {
         userStorage.delete(id);
     }
 
-    public User getUserById(long id) {
+    public User getById(long id) {
         if (!userStorage.contains(id)) {
             throw new NotFoundException("There is no user with this id");
         }
-        return userStorage.getUserById(id);
+        return userStorage.findById(id);
     }
 
-    public void addFriends(long id, long friendId) {
+    public void addFriend(long id, long friendId) {
         if (id < 1 || friendId < 1) {
             throw new NotFoundException("Id must be positive number");
         }
@@ -53,21 +54,21 @@ public class UserService {
         userStorage.addFriend(id, friendId);
     }
 
-    public void deleteFromFriends(long id, long friendId) {
+    public void deleteFriend(long id, long friendId) {
         if (id < 1 || friendId < 1) {
             throw new NotFoundException("Id must be positive number");
         }
         if (!userStorage.contains(id) || !userStorage.contains(friendId)) {
             throw new NotFoundException("There is no user with this id");
         }
-        userStorage.deleteFromFriends(id, friendId);
+        userStorage.deleteFriend(id, friendId);
     }
 
-    public List<User> getFriendList(long id) {
-        return userStorage.getFriendList(id);
+    public List<User> getFriends(long id) {
+        return userStorage.findFriends(id);
     }
 
     public List<User> getCommonFriends(long id1, long id2) {
-        return userStorage.getCommonFriends(id1, id2);
+        return userStorage.findCommonFriends(id1, id2);
     }
 }

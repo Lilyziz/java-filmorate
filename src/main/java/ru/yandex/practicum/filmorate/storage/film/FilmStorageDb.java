@@ -25,7 +25,7 @@ public class FilmStorageDb implements IFilmStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<Film> getAllFilms() {
+    public List<Film> findAll() {
         String sql = "SELECT * FROM films";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql);
         List<Film> films = new ArrayList<>();
@@ -36,7 +36,7 @@ public class FilmStorageDb implements IFilmStorage {
     }
 
     @Override
-    public Film createFilm(Film film) {
+    public Film create(Film film) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sql = "INSERT INTO films (name, description, releaseDate, duration, mpa_id) VALUES (?, ?, ?, ?, ?)";
         jdbcTemplate.update(connection -> {
@@ -89,7 +89,7 @@ public class FilmStorageDb implements IFilmStorage {
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public Film update(Film film) {
         film.setGenres(new TreeSet<>(film.getGenres()));
         String sql = "UPDATE films SET name = ?, description = ?, releaseDate = ?, duration = ?, mpa_id = ?, rating = ? " +
                 "WHERE film_id = ?";
@@ -106,7 +106,7 @@ public class FilmStorageDb implements IFilmStorage {
     }
 
     @Override
-    public Film getFilmById(long id) {
+    public Film findById(long id) {
         String sql = "SELECT * FROM films WHERE film_id = ?";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql, id);
         filmRows.next();
@@ -143,7 +143,7 @@ public class FilmStorageDb implements IFilmStorage {
     }
 
     @Override
-    public List<Film> getTopFilmsWithCount(long count) {
+    public List<Film> findTopFilmsWithCount(long count) {
         String sql = "SELECT f.*, m.name FROM films AS f INNER JOIN mpa AS m " +
                 "ON m.mpa_id = f.mpa_id ORDER BY rating DESC LIMIT ?";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql, count);

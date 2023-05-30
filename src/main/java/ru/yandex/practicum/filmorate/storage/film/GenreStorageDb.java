@@ -17,7 +17,7 @@ import java.util.List;
 public class GenreStorageDb {
     private final JdbcTemplate jdbcTemplate;
 
-    public Genre getGenreById(long id) {
+    public Genre findById(long id) {
         String sql = "SELECT * FROM genres WHERE genre_id = ?";
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sql, id);
         if (genreRows.next()) {
@@ -30,7 +30,7 @@ public class GenreStorageDb {
         }
     }
 
-    public List<Genre> getAllGenres() {
+    public List<Genre> findAll() {
         SqlRowSet genresRows = jdbcTemplate.queryForRowSet("SELECT * FROM genres");
         List<Genre> genresList = new ArrayList<>();
         while (genresRows.next()) {

@@ -25,7 +25,7 @@ public class UserStorageDb implements IUserStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> findAll() {
         String sql = "SELECT * FROM users";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql);
         List<User> users = new ArrayList<>();
@@ -36,7 +36,7 @@ public class UserStorageDb implements IUserStorage {
     }
 
     @Override
-    public User createUser(User user) {
+    public User create(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
         String sql = "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?)";
         jdbcTemplate.update(connection -> {
@@ -55,7 +55,7 @@ public class UserStorageDb implements IUserStorage {
     }
 
     @Override
-    public User updateUser(User user) {
+    public void update(User user) {
         String sql = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE user_id = ?";
         jdbcTemplate.update(sql,
                 user.getEmail(),
@@ -63,7 +63,6 @@ public class UserStorageDb implements IUserStorage {
                 user.getName(),
                 user.getBirthday(),
                 user.getId());
-        return user;
     }
 
     @Override
@@ -73,7 +72,7 @@ public class UserStorageDb implements IUserStorage {
     }
 
     @Override
-    public User getUserById(Long id) {
+    public User findById(Long id) {
         String sql = "SELECT * FROM users WHERE user_id = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
         userRows.next();
@@ -103,7 +102,7 @@ public class UserStorageDb implements IUserStorage {
     }
 
     @Override
-    public List<User> getFriendList(Long id) {
+    public List<User> findFriends(Long id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(
                 "SELECT u.* FROM users AS u " +
                         "INNER JOIN friendsList AS f ON f.friend_id = u.user_id WHERE f.user_id = ?", id);
@@ -116,7 +115,7 @@ public class UserStorageDb implements IUserStorage {
     }
 
     @Override
-    public void deleteFromFriends(long userId, long friendId) {
+    public void deleteFriend(long userId, long friendId) {
         String sql = "SELECT * FROM friendsList WHERE user_id=? AND friend_id=?";
         SqlRowSet userFriendRows = jdbcTemplate.queryForRowSet(sql, userId, friendId);
         sql = "DELETE FROM friendsList WHERE user_id=? AND friend_id=?";
@@ -126,9 +125,9 @@ public class UserStorageDb implements IUserStorage {
     }
 
     @Override
-    public List<User> getCommonFriends(long userId, long friendId) {
-        Set<User> friends1 = new HashSet<>(getFriendList(userId));
-        Set<User> friends2 = new HashSet<>(getFriendList(friendId));
+    public List<User> findCommonFriends(long userId, long friendId) {
+        Set<User> friends1 = new HashSet<>(findFriends(userId));
+        Set<User> friends2 = new HashSet<>(findFriends(friendId));
         friends1.retainAll(friends2);
         return new ArrayList<>(friends1);
     }
