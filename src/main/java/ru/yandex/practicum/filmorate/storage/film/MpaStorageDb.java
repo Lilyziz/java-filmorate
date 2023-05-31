@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -17,16 +18,16 @@ import java.util.List;
 public class MpaStorageDb {
     private final JdbcTemplate jdbcTemplate;
 
-    public Mpa findById(long id) {
+    public Optional<Mpa> findById(long id) {
         String sql = "SELECT * FROM mpa WHERE mpa_id = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
-        if (!userRows.next()) {
-            throw new NotFoundException("There is no mpa with this id");
+        if (userRows.next()) {
+            Mpa mpa = new Mpa();
+            mpa.setId(userRows.getInt("mpa_id"));
+            mpa.setName(userRows.getString("name"));
+            return Optional.of(mpa);
         }
-        Mpa mpa = new Mpa();
-        mpa.setId(userRows.getInt("mpa_id"));
-        mpa.setName(userRows.getString("name"));
-        return mpa;
+        return Optional.empty();
     }
 
     public List<Mpa> findAll() {

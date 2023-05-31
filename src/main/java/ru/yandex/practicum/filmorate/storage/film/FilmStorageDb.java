@@ -52,7 +52,6 @@ public class FilmStorageDb implements IFilmStorage {
         if (keyHolder.getKey() != null) {
             film.setId(keyHolder.getKey().longValue());
         }
-        updateGenresForFilmId(film.getId(), film.getGenres());
         return film;
     }
 
@@ -68,26 +67,6 @@ public class FilmStorageDb implements IFilmStorage {
         throw new NotFoundException("There is no mpa with this id");
     }
 
-    private Set<Genre> createGenresForFilm(long filmId) {
-        String sql = "SELECT genre_id FROM genre WHERE film_id = ?";
-        SqlRowSet genreIds = jdbcTemplate.queryForRowSet(sql, filmId);
-        Set<Integer> ids = new HashSet<>();
-        while (genreIds.next()) {
-            ids.add(Integer.valueOf(genreIds.getString("genre_id")));
-        }
-        sql = "SELECT name FROM genres WHERE genre_id = ?";
-        Set<Genre> genres = new TreeSet<>();
-        for (Integer id : ids) {
-            SqlRowSet genreName = jdbcTemplate.queryForRowSet(sql, id);
-            genreName.next();
-            Genre genre = new Genre();
-            genre.setId(id);
-            genre.setName(genreName.getString("name"));
-            genres.add(genre);
-        }
-        return genres;
-    }
-
     @Override
     public Film update(Film film) {
         film.setGenres(new TreeSet<>(film.getGenres()));
@@ -101,7 +80,6 @@ public class FilmStorageDb implements IFilmStorage {
                 film.getMpa().getId(),
                 film.getRating(),
                 film.getId());
-        updateGenresForFilmId(film.getId(), film.getGenres());
         return film;
     }
 
@@ -111,7 +89,6 @@ public class FilmStorageDb implements IFilmStorage {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql, id);
         filmRows.next();
         Film film = fillFilm(filmRows);
-        film.setGenres(createGenresForFilm(id));
         return film;
     }
 
@@ -138,7 +115,6 @@ public class FilmStorageDb implements IFilmStorage {
         if (!filmRows.wasNull()) {
             film.setMpa(createMpaForFilm(filmRows.getInt("mpa_id")));
         }
-        film.setGenres(createGenresForFilm(film.getId()));
         return film;
     }
 
@@ -153,19 +129,6 @@ public class FilmStorageDb implements IFilmStorage {
             films.add(film);
         }
         return films;
-    }
-
-    private void updateGenresForFilmId(long filmId, Set<Genre> genres) {
-        deleteGenresForFilmId(filmId);
-        String sql = "INSERT INTO genre (film_id, genre_id) VALUES (?, ?)";
-        for (Genre genre : genres) {
-            jdbcTemplate.update(sql, filmId, genre.getId());
-        }
-    }
-
-    private void deleteGenresForFilmId(long filmId) {
-        String sql = "DELETE FROM genre WHERE film_id=?";
-        jdbcTemplate.update(sql, filmId);
     }
 }
 

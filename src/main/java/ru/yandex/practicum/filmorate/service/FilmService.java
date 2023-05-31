@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.film.FilmGenreStorageDb;
+import ru.yandex.practicum.filmorate.storage.film.GenreStorageDb;
 import ru.yandex.practicum.filmorate.storage.film.IFilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.LikeStorageDb;
 import ru.yandex.practicum.filmorate.storage.user.UserStorageDb;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +20,8 @@ public class FilmService {
     private final IFilmStorage filmStorage;
     private final LikeStorageDb likeStorage;
     private final UserStorageDb userStorage;
+    private final GenreStorageDb genreStorage;
+    private final FilmGenreStorageDb filmGenreStorage;
     private final FilmValidator filmValidator = new FilmValidator();
 
     public Film create(Film film) {
@@ -29,18 +34,36 @@ public class FilmService {
         if (!filmStorage.contains(film.getId())) {
             throw new NotFoundException("There is no film with this id");
         }
+        updateGenresForFilmId(film.getId(), film.getGenres());
         return filmStorage.update(film);
     }
 
     public List<Film> getAll() {
-        return filmStorage.findAll();
+        List<Film> filmsList = filmStorage.findAll();
+        //List<Genre> genreList = genreStorage.findAll();
+//
+        //for (Film film : filmsList) {
+        //    Set<Genre> filmsGenre = new TreeSet<>();
+        //    for (Genre genre : film.getGenres()) {
+        //        filmsGenre.add(genreList.get(genre.getId()));
+        //    }
+        //    film.setGenres(filmsGenre);
+        //    System.out.println(filmsGenre);
+        //}
+        Map<Integer, Set<Genre>> filmGenresMap = filmGenreStorage.getAllFilmGenres(filmsList);
+        for (Film film : filmsList) {
+            film.setGenres(filmGenresMap.get(film.getId()));
+        }
+        return filmsList;
     }
 
     public Film getById(long id) {
         if (!filmStorage.contains(id)) {
             throw new NotFoundException("There is no film with this id");
         }
-        return filmStorage.findById(id);
+        Film film = filmStorage.findById(id);
+        film.setGenres(filmGenreStorage.findAllFilmGenresById(id));
+        return film;
     }
 
     public void delete(Long id) {
@@ -69,5 +92,10 @@ public class FilmService {
 
     public List<Film> getTopFilmsWithCount(long count) {
         return filmStorage.findTopFilmsWithCount(count);
+    }
+
+    public void updateGenresForFilmId(long filmId, Set<Genre> genres) {
+        filmGenreStorage.deleteAll(filmId);
+        filmGenreStorage.add(filmId, genres);
     }
 }

@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -17,17 +18,16 @@ import java.util.List;
 public class GenreStorageDb {
     private final JdbcTemplate jdbcTemplate;
 
-    public Genre findById(long id) {
+    public Optional<Genre> findById(long id) {
         String sql = "SELECT * FROM genres WHERE genre_id = ?";
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sql, id);
         if (genreRows.next()) {
             Genre genre = new Genre();
             genre.setId(genreRows.getInt("genre_id"));
             genre.setName(genreRows.getString("name"));
-            return genre;
-        } else {
-            throw new NotFoundException("There is no genre with this id");
+            return Optional.of(genre);
         }
+        return Optional.empty();
     }
 
     public List<Genre> findAll() {
