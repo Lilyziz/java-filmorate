@@ -8,14 +8,15 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 
 @Slf4j
 @Component("filmStorageDb")
@@ -52,19 +53,23 @@ public class FilmStorageDb implements IFilmStorage {
         if (keyHolder.getKey() != null) {
             film.setId(keyHolder.getKey().longValue());
         }
+        if (film.getGenres() != null) {
+            for (Genre genre : film.getGenres()) {
+                String sqlQuery = "INSERT INTO genre (film_id, genre_id) VALUES (?, ?)";
+                jdbcTemplate.update(sqlQuery, film.getId(), genre.getId());
+            }
+        }
         return film;
     }
 
     private Mpa createMpaForFilm(Integer mpaId) {
         String sql = "SELECT name FROM mpa WHERE mpa_id = ?";
         SqlRowSet mpaName = jdbcTemplate.queryForRowSet(sql, mpaId);
-        if (mpaName.next()) {
-            Mpa mpa = new Mpa();
-            mpa.setId(mpaId);
-            mpa.setName(mpaName.getString("name"));
-            return mpa;
-        }
-        throw new NotFoundException("There is no mpa with this id");
+        mpaName.next();
+        Mpa mpa = new Mpa();
+        mpa.setId(mpaId);
+        mpa.setName(mpaName.getString("name"));
+        return mpa;
     }
 
     @Override
@@ -88,8 +93,7 @@ public class FilmStorageDb implements IFilmStorage {
         String sql = "SELECT * FROM films WHERE film_id = ?";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql, id);
         filmRows.next();
-        Film film = fillFilm(filmRows);
-        return film;
+        return fillFilm(filmRows);
     }
 
     @Override

@@ -6,13 +6,14 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.FilmGenreStorageDb;
-import ru.yandex.practicum.filmorate.storage.film.GenreStorageDb;
 import ru.yandex.practicum.filmorate.storage.film.IFilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.LikeStorageDb;
 import ru.yandex.practicum.filmorate.storage.user.UserStorageDb;
 import ru.yandex.practicum.filmorate.validator.FilmValidator;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +21,6 @@ public class FilmService {
     private final IFilmStorage filmStorage;
     private final LikeStorageDb likeStorage;
     private final UserStorageDb userStorage;
-    private final GenreStorageDb genreStorage;
     private final FilmGenreStorageDb filmGenreStorage;
     private final FilmValidator filmValidator = new FilmValidator();
 
@@ -40,19 +40,11 @@ public class FilmService {
 
     public List<Film> getAll() {
         List<Film> filmsList = filmStorage.findAll();
-        //List<Genre> genreList = genreStorage.findAll();
-//
-        //for (Film film : filmsList) {
-        //    Set<Genre> filmsGenre = new TreeSet<>();
-        //    for (Genre genre : film.getGenres()) {
-        //        filmsGenre.add(genreList.get(genre.getId()));
-        //    }
-        //    film.setGenres(filmsGenre);
-        //    System.out.println(filmsGenre);
-        //}
-        Map<Integer, Set<Genre>> filmGenresMap = filmGenreStorage.getAllFilmGenres(filmsList);
+        Map<Long, Set<Genre>> filmGenresMap = filmGenreStorage.getAllFilmGenres(filmsList);
         for (Film film : filmsList) {
-            film.setGenres(filmGenresMap.get(film.getId()));
+            if (filmGenresMap.containsKey(film.getId())) {
+                film.setGenres(filmGenresMap.get(film.getId()));
+            }
         }
         return filmsList;
     }

@@ -44,34 +44,27 @@ public class FilmGenreStorageDb {
         return genres;
     }
 
-    public Map<Integer, Set<Genre>> getAllFilmGenres(List<Film> films) {
-        Map<Integer, Set<Genre>> filmGenresMap = new HashMap<>();
+    public Map<Long, Set<Genre>> getAllFilmGenres(List<Film> films) {
+        Map<Long, Set<Genre>> filmGenresMap = new HashMap<>();
         Collection<String> ids = films.stream().map(film -> String.valueOf(film.getId())).collect(Collectors.toList());
-        System.out.println(ids);
-        final String sql = "SELECT fg.film_id, g.genre_id, g.name FROM genre fg " +
-                "LEFT JOIN genres g ON fg.genre_id = g.genre_id WHERE fg.film_id IN (ids)";
-        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql, ids);
 
-        System.out.println(sqlRowSet);
+        StringJoiner joiner = new StringJoiner(", ");
+        for (String s : ids)
+            joiner.add(s);
+        String result = joiner.toString();
+
+        final String sql = "SELECT fg.film_id, g.genre_id, g.name FROM genre fg " +
+                "LEFT JOIN genres g ON fg.genre_id = g.genre_id WHERE fg.film_id IN (" + result + ")";
+        SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
 
         while (sqlRowSet.next()) {
             Genre genre = new Genre();
-            Integer filmId = sqlRowSet.getInt("film_id");
+            Long filmId = sqlRowSet.getLong("film_id");
             genre.setId(sqlRowSet.getInt("genre_id"));
             genre.setName(sqlRowSet.getString("name"));
-
             filmGenresMap.putIfAbsent(filmId, new TreeSet<>());
             filmGenresMap.get(filmId).add(genre);
         }
-
         return filmGenresMap;
-        //jdbcTemplate.query(sql, (rs) -> {
-        //    final Film film = (Film) filmGenresMap.get(rs.getInt("FILM_ID"));
-        //    Genre genre = new Genre();
-        //    genre.setId(rs.getInt("genre_id"));
-        //    genre.setName(rs.getString("name"));
-        //    filmGenresMap.get(film.getId()).add(genre);
-        //}, films.stream().map(Film::getId).toArray());
-        //return filmGenresMap;
     }
 }
