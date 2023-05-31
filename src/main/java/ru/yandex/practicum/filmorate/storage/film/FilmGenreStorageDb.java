@@ -31,11 +31,11 @@ public class FilmGenreStorageDb {
     }
 
     public Set<Genre> findAllFilmGenresById(Long filmId) {
-        final String sql = "SELECT g.genre_id, name FROM genre fg LEFT JOIN genres g ON " +
-                            "fg.genre_id = g.genre_id WHERE film_id = ?";
+        String sql = "SELECT g.genre_id, name FROM genre fg LEFT JOIN genres g ON " +
+                "fg.genre_id = g.genre_id WHERE film_id = ?";
         SqlRowSet genresRowSet = jdbcTemplate.queryForRowSet(sql, filmId);
         Set<Genre> genres = new TreeSet<>();
-        while (genresRowSet.next()){
+        while (genresRowSet.next()) {
             Genre genre = new Genre();
             genre.setId(genresRowSet.getInt("genre_id"));
             genre.setName(genresRowSet.getString("name"));
@@ -53,7 +53,7 @@ public class FilmGenreStorageDb {
             joiner.add(s);
         String result = joiner.toString();
 
-        final String sql = "SELECT fg.film_id, g.genre_id, g.name FROM genre fg " +
+        String sql = "SELECT fg.film_id, g.genre_id, g.name FROM genre fg " +
                 "LEFT JOIN genres g ON fg.genre_id = g.genre_id WHERE fg.film_id IN (" + result + ")";
         SqlRowSet sqlRowSet = jdbcTemplate.queryForRowSet(sql);
 
