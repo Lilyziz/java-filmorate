@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.film.MpaStorageDb;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -15,11 +14,8 @@ public class MpaService {
     private final MpaStorageDb storage;
 
     public Mpa getById(final long id) {
-        Optional<Mpa> mpa = storage.findById(id);
-        if (mpa.isEmpty()) {
-            throw new NotFoundException("There is no user with this id");
-        }
-        return mpa.get();
+        return storage.findById(id)
+                .orElseThrow(() -> new NotFoundException("There is no mpa with this id: " + id));
     }
 
     public List<Mpa> getAll() {

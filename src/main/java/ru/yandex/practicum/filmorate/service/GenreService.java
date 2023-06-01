@@ -1,27 +1,21 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.film.GenreStorageDb;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class GenreService {
     private final GenreStorageDb storage;
 
-    public GenreService(GenreStorageDb genreStorage) {
-        this.storage = genreStorage;
-    }
-
     public Genre getById(final long id) {
-        Optional<Genre> genre = storage.findById(id);
-        if (genre.isEmpty()) {
-            throw new NotFoundException("There is no user with this id");
-        }
-        return genre.get();
+        return storage.findById(id)
+                .orElseThrow(() -> new NotFoundException("There is no genre with this id: " + id));
     }
 
     public List<Genre> getAll() {

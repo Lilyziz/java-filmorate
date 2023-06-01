@@ -31,9 +31,8 @@ public class FilmService {
 
     public Film update(Film film) {
         filmValidator.isValid(film);
-        if (!filmStorage.contains(film.getId())) {
-            throw new NotFoundException("There is no film with this id");
-        }
+        filmStorage.findById(film.getId()).orElseThrow(
+                () -> new NotFoundException("There is no film with this id: " + film.getId()));
         updateGenresForFilmId(film.getId(), film.getGenres());
         return filmStorage.update(film);
     }
@@ -50,10 +49,8 @@ public class FilmService {
     }
 
     public Film getById(long id) {
-        if (!filmStorage.contains(id)) {
-            throw new NotFoundException("There is no film with this id");
-        }
-        Film film = filmStorage.findById(id);
+        Film film = filmStorage.findById(id)
+                .orElseThrow(() -> new NotFoundException("There is no film with this id: " + id));
         film.setGenres(filmGenreStorage.findAllFilmGenresById(id));
         return film;
     }
@@ -62,23 +59,19 @@ public class FilmService {
         filmStorage.delete(id);
     }
 
-    public void addLike(long id, long userId) {
-        if (!filmStorage.contains(id)) {
-            throw new NotFoundException("There is no film with this id");
-        }
-        if (!userStorage.contains(id)) {
-            throw new NotFoundException("There is no user with this id");
-        }
-        likeStorage.addLike(id, userId);
+    public void addLike(long filmId, long userId) {
+        filmStorage.findById(filmId).orElseThrow(
+                () -> new NotFoundException("There is no film with this id: " + filmId));
+        userStorage.contains(userId).orElseThrow(
+                () -> new NotFoundException("There is no user with this id:" + userId));
+        likeStorage.addLike(filmId, userId);
     }
 
     public void deleteLike(long filmId, long userId) {
-        if (!filmStorage.contains(filmId)) {
-            throw new NotFoundException("There is no film with this id");
-        }
-        if (!userStorage.contains(userId)) {
-            throw new NotFoundException("There is no user with this id");
-        }
+        filmStorage.findById(filmId).orElseThrow(
+                () -> new NotFoundException("There is no film with this id: " + filmId));
+        userStorage.contains(userId).orElseThrow(
+                () -> new NotFoundException("There is no user with this id:" + userId));
         likeStorage.deleteLike(filmId, userId);
     }
 

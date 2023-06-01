@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.TreeSet;
 
 @Slf4j
@@ -89,17 +90,23 @@ public class FilmStorageDb implements IFilmStorage {
     }
 
     @Override
-    public Film findById(long id) {
+    public Optional<Film> findById(long id) {
         String sql = "SELECT * FROM films WHERE film_id = ?";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sql, id);
-        filmRows.next();
-        return fillFilm(filmRows);
+        if (filmRows.next()) {
+            return Optional.of(fillFilm(filmRows));
+        }
+        return Optional.empty();
     }
 
     @Override
-    public boolean contains(long id) {
+    public Optional<Boolean> contains(long id) {
         String sql = "SELECT * FROM films WHERE film_id = ?";
-        return jdbcTemplate.queryForRowSet(sql, id).next();
+        SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
+        if (userRows.next()) {
+            return Optional.of(userRows.next());
+        }
+        return Optional.empty();
     }
 
     @Override

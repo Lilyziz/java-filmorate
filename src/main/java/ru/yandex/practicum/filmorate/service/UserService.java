@@ -22,9 +22,8 @@ public class UserService {
 
     public User update(User user) {
         userValidator.isValid(user);
-        if (!userStorage.contains(user.getId())) {
-            throw new NotFoundException("There is no user with this id");
-        }
+        userStorage.contains(user.getId()).orElseThrow(
+                () -> new NotFoundException("There is no user with this id:" + user.getId()));
         userStorage.update(user);
         return user;
     }
@@ -38,19 +37,18 @@ public class UserService {
     }
 
     public User getById(long id) {
-        if (!userStorage.contains(id)) {
-            throw new NotFoundException("There is no user with this id");
-        }
-        return userStorage.findById(id);
+        return userStorage.findById(id).orElseThrow(
+                () -> new NotFoundException("There is no user with this id: " + id));
     }
 
     public void addFriend(long id, long friendId) {
         if (id < 1 || friendId < 1) {
             throw new NotFoundException("Id must be positive number");
         }
-        if (!userStorage.contains(id) || !userStorage.contains(friendId)) {
-            throw new NotFoundException("There is no user with this id");
-        }
+        userStorage.findById(id).orElseThrow(
+                () -> new NotFoundException("There is no user with this id: " + id));
+        userStorage.findById(friendId).orElseThrow(
+                () -> new NotFoundException("There is no user with this id: " + id));
         userStorage.addFriend(id, friendId);
     }
 
@@ -58,9 +56,10 @@ public class UserService {
         if (id < 1 || friendId < 1) {
             throw new NotFoundException("Id must be positive number");
         }
-        if (!userStorage.contains(id) || !userStorage.contains(friendId)) {
-            throw new NotFoundException("There is no user with this id");
-        }
+        userStorage.findById(id).orElseThrow(
+                () -> new NotFoundException("There is no user with this id: " + id));
+        userStorage.findById(friendId).orElseThrow(
+                () -> new NotFoundException("There is no user with this id: " + id));
         userStorage.deleteFriend(id, friendId);
     }
 

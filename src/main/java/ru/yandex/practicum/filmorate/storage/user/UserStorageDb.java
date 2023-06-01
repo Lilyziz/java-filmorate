@@ -12,10 +12,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Component("userStorageDb")
@@ -72,17 +69,23 @@ public class UserStorageDb implements IUserStorage {
     }
 
     @Override
-    public User findById(Long id) {
+    public Optional<User> findById(Long id) {
         String sql = "SELECT * FROM users WHERE user_id = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sql, id);
-        userRows.next();
-        return fillUser(userRows);
+        if (userRows.next()) {
+            return Optional.of(fillUser(userRows));
+        }
+        return Optional.empty();
     }
 
     @Override
-    public boolean contains(long id) {
+    public Optional<Boolean> contains(long id) {
         String sql = "SELECT * FROM users WHERE user_id = ?";
-        return jdbcTemplate.queryForRowSet(sql, id).next();
+        SqlRowSet flag = jdbcTemplate.queryForRowSet(sql, id);
+        if (flag.next()) {
+            return Optional.of(flag.next());
+        }
+        return Optional.empty();
     }
 
     private User fillUser(SqlRowSet userRows) {
