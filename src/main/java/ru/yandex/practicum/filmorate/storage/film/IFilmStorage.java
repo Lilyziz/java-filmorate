@@ -3,19 +3,20 @@ package ru.yandex.practicum.filmorate.storage.film;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IFilmStorage {
-    List<Film> getAllFilms();
+    List<Film> findAll();
 
-    Film createFilm(Film film);
+    Film create(Film film);
 
-    Film updateFilm(Film film);
+    Film update(Film film);
 
-    Film getFilmById(long id);
+    Optional<Film> findById(long id);
 
-    boolean contains(long id);
+    Optional<Boolean> contains(long id);
 
     void delete(long id);
 
-    List<Film> topFilmsWithCount(long count);
+    List<Film> findTopFilmsWithCount(long count);
 }
